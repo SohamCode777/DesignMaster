@@ -1,0 +1,157 @@
+.auth-container{
+    display: flex;
+    width: 100%;
+    min-height: 100vh;    
+}
+
+
+.form-section{
+    margin-left: 50px;
+    padding-top: 20px;
+    flex: 2.5;
+   
+     
+}
+
+.user-text{
+    color: #656565;
+    padding-bottom: 0px;
+    margin-bottom: 28px ;
+}
+
+.account-creation-text{
+    padding-left: 2px;
+}
+
+.account-creation-text:hover{
+    color: var(--primary-color);
+    cursor: pointer;
+    padding-left: 6px;
+    
+
+}
+
+
+.auth-title{
+    padding: 0px;
+    margin-top: 0px;
+    margin-bottom: 12px;
+}
+
+.sub-heading{
+    margin-top: 0px;
+    padding:0px;
+    margin-bottom: 40px;
+}
+.form-field{
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    gap: 8px;
+    margin-bottom: 24px;
+    margin-top: 0px;
+}
+
+.input-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.input-section {
+    box-sizing: border-box;
+    height: 40px;
+    border-radius: 20px;
+    padding-left: 10px;
+    border: 1px solid transparent;
+    width: 100%;
+    padding-right: 12%;
+    
+    background:
+        linear-gradient(#FDFDFD, #FDFDFD) padding-box,
+        linear-gradient(
+            90deg,
+            rgba(45, 88, 255, 0.6),
+            rgba(19, 13, 50, 0.6)
+        ) border-box;
+
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+
+    outline: none;
+}
+
+.password-icon {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.form-label{
+    font-family: "Lato", sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    font-style: normal;
+    padding-left: 16px;
+
+}
+
+.form-section .login-button{
+    margin-top: 26px;
+    width: 75%;
+    height: 48px;
+    border-radius: 24px ;
+    
+    
+}
+
+
+
+
+
+
+/* Side banner css */
+
+.side-banner{
+    
+    min-height: 100vh;
+    
+   flex: 3;
+    background-image: url("../assets/auth_banner_image.png") ;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    padding-left: 20px;
+    padding-top: 20px;
+
+    
+}
+.logo{
+    padding: 0;
+    margin-bottom: 20px ;
+}
+
+.banner-heading{
+    display: block;
+    width: 390px;
+    font-family: "Lato", sans-serif;
+    font-size: 44px;
+    font-weight: 900;
+    padding: 0px;
+    margin-top: 20px;
+    margin-bottom: 60px;
+
+}
+
+.banner-list{
+    margin-left: -10px;
+    display: block;
+    width:550px ;
+    
+}
+
+.banner-list-item{
+    margin-bottom: 40px;
+}

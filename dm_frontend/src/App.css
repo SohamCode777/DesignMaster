@@ -74,3 +74,44 @@
 .text-white{
   color: var(--white-color);
 }
+
+.primary-button{
+  background-color: var(--primary-color);
+  color: var(--white-color);
+  display: inline-block;
+  width: 184px ;
+  height: 44px;
+  padding-left: 16px;
+  padding-right: 16px;
+  border: none;
+  border-radius: 20px;
+  font-family: "Lato", sans-serif;
+  font-size: var(--h_6);
+}
+
+.primary-button:hover{
+  background-color: var(--primary-hover);
+  cursor: pointer;
+  
+}
+
+
+.secondary-button{
+  background-color: none;
+  color: var(--dark-color);
+  border: 1px solid var(--dark-color);
+  border-radius: 20px;
+  display: inline-block;
+  width: 184px ;
+  height: 44px;
+  padding-left: 16px;
+  padding-right: 16px;
+  font-family: "Lato", sans-serif;
+  font-size: var(--h_6);
+}
+
+.secondary-button:hover{
+  background-color: var(--dark-color);
+  cursor: pointer;
+ 
+}

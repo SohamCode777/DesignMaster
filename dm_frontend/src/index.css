@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
 :root {
   --primary-color: #2D58FF;
+  --primary-hover:#1b328f;
   --dark-color: #130D32;
   --white-color: #FDFDFD;
   --h_1 : 2.027rem;
