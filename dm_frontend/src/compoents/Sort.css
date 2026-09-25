@@ -1,0 +1,96 @@
+.sort{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    border: 1.5px solid transparent;
+    border-radius: 10px;
+   
+
+    background:
+        linear-gradient(#FDFDFD, #FDFDFD) padding-box,
+        linear-gradient(
+            180deg,
+            rgba(45, 88, 255, 0.5),
+            rgba(19, 13, 50, 0.5)
+        ) border-box;
+
+    outline: none;
+}
+
+.sort:hover{
+    background:
+        linear-gradient(rgba(247, 247, 247, 0.9), rgba(247, 247, 247, 0.9)) padding-box,
+        linear-gradient(
+            180deg,
+            rgba(45, 88, 255, 0.5),
+            rgba(19, 13, 50, 0.5)
+        ) border-box;
+        
+}
+
+
+
+.sort-container {
+    position: relative;
+}
+
+.sort-panel {
+    position: absolute;
+    top: 46px;
+    right: 0;
+
+    width: 180px;
+    max-height: 200px;
+    overflow-y: auto;
+
+    box-sizing: border-box;
+    padding: 4px;
+    margin: 2px;
+    padding-left: 8px;
+
+    background-color: #FDFDFD;
+    border: 2px solid #2d57ff65;
+    border-radius: 12px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+
+    z-index: 100;
+}
+
+.sort-option.small {
+    display: flex;
+    align-items: center;
+
+    padding: 0;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    padding-left: 4px;
+
+    cursor: pointer;
+}
+
+.sort-option.small:hover {
+    background-color: #B9DDFF;
+}
+
+.selected-sort {
+    background-color: #B9DDFF;
+    border-radius: 4px;
+}
+
+.clear-sort-button {
+    border: 1px solid #2d57ff65;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.clear-sort-button:hover {
+    border: 1px solid #2d57ff65;
+    border-radius: 4px;
+    background-color: #B9DDFF;
+    cursor: pointer;
+}

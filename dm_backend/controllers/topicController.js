@@ -90,4 +90,120 @@ const saveTopicController = async (req, res) => {
 };
 
 
-export {generateTopicController, saveTopicController};
+//get saved topics
+
+const getSavedTopicsController = async (req, res) => {
+    try {
+        const userId = req.userId;
+
+       const savedTopics = await pool.query(
+                `SELECT
+                    id,
+                    title,
+                    project_type AS "projectType",
+                    domain,
+                    client,
+                    challenge,
+                    deliverables,
+                    difficulty,
+                    created_at AS "createdAt"
+                FROM saved_topics
+                WHERE user_id = $1
+                ORDER BY created_at DESC`,
+                [userId]
+            );
+
+        return res.status(200).json({
+            topics: savedTopics.rows,
+            message: "Saved topics retrieved successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Failed to retrieve saved topics"
+        });
+    }
+};
+
+
+//delete saved topic
+
+const deleteSavedTopicController = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const topicId = req.params.id;
+
+        const deletedTopic = await pool.query(
+            `DELETE FROM saved_topics
+             WHERE id = $1 AND user_id = $2
+             RETURNING id`,
+            [topicId, userId]
+        );
+
+        if (deletedTopic.rows.length === 0) {
+            return res.status(404).json({
+                message: "Saved topic not found"
+            });
+        }
+
+        return res.status(200).json({
+            message: "Saved topic deleted successfully"
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        return res.status(500).json({
+            message: "Failed to delete saved topic"
+        });
+    }
+};
+
+
+//get single saved topic
+
+const getSingleSavedTopicController = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    try {
+        const result = await pool.query(
+            `
+            SELECT
+                id,
+                title,
+                project_type AS "projectType",
+                domain,
+                client,
+                challenge,
+                deliverables,
+                difficulty,
+                created_at AS "createdAt"
+            FROM saved_topics
+            WHERE id = $1 AND user_id = $2
+            `,
+            [id, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                message: "Topic not found"
+            });
+        }
+
+        res.status(200).json({
+            topic: result.rows[0]
+        });
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to get topic"
+        });
+    }
+};
+
+export {generateTopicController, saveTopicController, getSavedTopicsController, deleteSavedTopicController, getSingleSavedTopicController};

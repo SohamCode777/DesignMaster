@@ -1,0 +1,49 @@
+.heading-and-functions{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    
+}
+
+.saved-topics-title{
+    margin-bottom: 20px;
+}
+
+
+
+.search-sort-filter-functions{
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.saved-topics-content{
+    margin-top: 20px;
+}
+
+.saved-topics-empty{
+     color: #656565;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 96px;
+}
+
+.saved-topics-no-results{
+    color: #656565;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 96px;
+    
+}
+.saved-topic-views {
+    
+
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 44px; /* change this */
+    row-gap: 40px;    /* change this */
+}

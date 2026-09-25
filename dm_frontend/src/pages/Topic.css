@@ -1,0 +1,87 @@
+.topic-body{
+    display: flex;
+    flex-direction: row;
+
+}
+
+.topic-page-topic-section { 
+    margin-top: 28px; 
+    max-width: 90%; 
+} 
+
+.topic-page-topic-section-title { 
+    margin: 0px; 
+    margin-bottom: 12px; 
+} 
+
+.topic-page-topic-section-text { 
+    margin: 0px; 
+} 
+
+.topic-page-topic-title { 
+    margin-bottom: 12px; 
+    margin-top: 12px;
+} 
+
+.topic-page-topic-pills { 
+    padding-top: 12px;
+    margin-left: -6px;
+    display: flex; 
+    flex-direction: row; 
+    gap: 8px; 
+    
+} 
+
+.topic-page-topic-pill { 
+    display: flex; 
+    min-width: 120px; 
+    max-width: 150px; 
+    height: 28px; 
+    padding-left: 4px; 
+    padding-right: 4px; 
+    justify-content: center; 
+    align-items: center; 
+    background-color: #2882D7; 
+    border-radius: 40px; 
+} 
+
+.topic-page-topic-pill-domain { 
+    background-color: #6D59FF; 
+    color: white; 
+} 
+
+.topic-page-topic-pill-projectType { 
+    background-color: #2882D7; 
+    color: white; 
+    max-width: 200px; 
+} 
+
+.topic-page-topic-pill-difficulty-beginner { 
+    background-color: #6FD02F; 
+    color: white; 
+} 
+
+.topic-page-topic-pill-difficulty-intermediate { 
+    background-color: #e2a54f; 
+    color: white; 
+} 
+
+.topic-page-topic-pill-difficulty-advanced { 
+    background-color: #E3342B; 
+    color: white; 
+}
+
+.topic-page-list-items{
+    margin-left: -16px;
+}
+
+
+.button-section{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-top: 32px;
+}
+
+
+

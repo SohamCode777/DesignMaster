@@ -1,0 +1,153 @@
+.saved-topic-container {
+    max-height: 230px;
+    min-height: 193px;
+    min-width: 354px;
+    max-width: 95%;
+    box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+
+    background: rgb(121, 206, 255);
+    padding: 0px;
+    border-radius: 8px;
+    border: 1px solid rgba(212, 212, 212, 0.6);
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.30);
+    
+}
+
+.saved-topic-container:hover {
+    border: 1px solid #2d57ff65;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.30);
+    cursor: pointer;
+}
+
+
+.saved-topic-thumbnail {
+    position: relative;
+    height: 55%;
+    width: 100%;
+}
+
+.saved-topic-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.delete-topic-button {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 32px;
+     opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+     border: 1px solid transparent;
+    border-radius: 4px;
+     background:
+        linear-gradient(#FDFDFD, #FDFDFD) padding-box,
+        linear-gradient(
+            180deg,
+            rgba(45, 88, 255, 0.3),
+            rgba(19, 13, 50, 0.3)
+        ) border-box;
+
+    
+    
+}
+
+.saved-topic-container:hover .delete-topic-button {
+    opacity: 1;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+
+
+
+
+.saved-topic-details {
+    box-sizing: border-box;
+    height: 45%;
+    width: 100%;
+    margin-top: auto;
+
+    background-color: white;
+    z-index: 10;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    
+    padding-top: 8px;
+    padding-left: 8px;
+    padding-right: 2px;
+
+}
+
+
+.micro-topic-pills {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    
+}
+
+.micro-topic-pill {
+    display: flex;
+    min-width: 80px;
+    max-width: 150px;
+    min-height: 24px;
+    max-height: 32px;
+    padding-left: 4px;
+    padding-right: 4px;
+    justify-content: center;
+    align-items: center;
+    background-color: #2882D7;
+    border-radius: 40px;
+    font-size: 0.619rem;
+    font-weight: 700;
+
+}
+
+.micro-topic-pill-domain {
+    background-color: #6D59FF;
+    color: white;
+}
+
+.micro-topic-pill-projectType {
+    background-color: #2882D7;
+    color: white;
+    max-width: 200px;
+}
+
+.micro-topic-pill-difficulty-beginner {
+    background-color: #6FD02F;
+    color: white;
+}
+
+.micro-topic-pill-difficulty-intermediate {
+    background-color: #e2a54f;
+    color: white;
+}
+
+.micro-topic-pill-difficulty-advanced {
+    background-color: #E3342B;
+    color: white;
+}
+
+
+.saved-topic-title {
+    width: 80%;
+    padding: 0;
+    margin: 0;
+    margin-top: 8px;
+
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+
+    font-weight: 700;
+}

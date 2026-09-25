@@ -25,7 +25,7 @@ function App() {
           <Route path='/generator' element={<ProtectedRoute><Generator /></ProtectedRoute>} />
           <Route path='/saved-topics' element={<ProtectedRoute><SavedTopics /></ProtectedRoute>} />
           <Route path='/experience-centre' element={<ProtectedRoute><ExperienceCentre /></ProtectedRoute>} />
-          <Route path='/topic' element={<ProtectedRoute><Topic /></ProtectedRoute>} />
+          <Route path='/topic/:topicId' element={<ProtectedRoute><Topic /></ProtectedRoute>} />
           <Route path='/account-details' element={<ProtectedRoute><AccountDetails /></ProtectedRoute>} />
         </Route>
 
