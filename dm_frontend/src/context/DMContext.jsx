@@ -29,10 +29,13 @@ const DMContextProvider = (props) => {
             }
 
         } catch (error) {
-            console.log(error.response?.data);
+            //console.log(error.response?.data);
+             console.log("ME ERROR:", error.response?.status);
+             console.log("ME ERROR DATA:", error.response?.data);
             setUser(null);
         } finally {
             setLoading(false);
+            console.log("Loading set to false");
         }
     };
 

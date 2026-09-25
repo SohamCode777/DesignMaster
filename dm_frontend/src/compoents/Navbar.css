@@ -1,9 +1,10 @@
 .nav-bg{
     background-color: var(--dark-color);
     display: block;
-    height: 70px;
+    
 }
 .navbar{
+    height: 70px;
     display: flex;
     flex-direction: row;
     align-items: center;

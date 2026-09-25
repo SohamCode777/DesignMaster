@@ -8,8 +8,10 @@ import { DMContext } from "../context/DMContext";
 function ProtectedRoute({children}) {
   const { user, loading } = useContext(DMContext);
 
+  console.log("ProtectedRoute:", { user, loading });
+
   if (loading) {
-        return null;
+          return null;
     }
 
     if (!user) {

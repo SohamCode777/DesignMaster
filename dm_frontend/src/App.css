@@ -1,6 +1,6 @@
 .h1{
   font-family: "Lato",  sans-serif;
-  font-weight: 700 ;
+  font-weight: 900 ;
   font-size: var(--h_1) ;
   font-style: normal;
 }
@@ -96,8 +96,9 @@
 }
 
 
+
 .secondary-button{
-  background-color: none;
+  background-color: var(--white-color);
   color: var(--dark-color);
   border: 1px solid var(--dark-color);
   border-radius: 20px;
@@ -112,6 +113,28 @@
 
 .secondary-button:hover{
   background-color: var(--dark-color);
+  color: white;
   cursor: pointer;
  
+}
+.secondary-button:disabled {
+    cursor: not-allowed;
+    background-color: var(--dark-color);
+    color: white;
+}
+
+  
+
+.main-background-image{
+  background-image: url(./assets/dm-background.png);
+  min-height: 100vh;
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+.body-container{
+  min-height: 100vh;
+  margin-left: 50px;
+  margin-right: 50px;
+
 }

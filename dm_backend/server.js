@@ -4,6 +4,8 @@ import "dotenv/config";
 import cookieParser from "cookie-parser";
 import authRoutes from './routes/authRoutes.js';
 import pool from "./config/db.js";
+import topicRoutes from './routes/topicRoutes.js';
+
 
 
 
@@ -25,6 +27,7 @@ app.use(cookieParser()); //allows express to use req.cookies(), res.cookie(), re
 
 //adding routes
 app.use('/api/auth',authRoutes)
+app.use('/api/topic', topicRoutes);
 
 app.get("/", (req,res)=>{
     res.send("Api working");
@@ -39,7 +42,6 @@ pool.query("SELECT NOW()", (err, result) => {
         console.log("Database connected:", result.rows[0]);
     }
 });
-
 
 
 app.listen(port, ()=>{

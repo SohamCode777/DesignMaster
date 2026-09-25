@@ -10,7 +10,11 @@ import { DMContext } from '../context/DMContext';
 
 function Navbar() {
   const navigate = useNavigate();
-  const { user, setUser } = useContext(DMContext);
+  const { user, setUser, loading } = useContext(DMContext);
+
+  if (loading) {
+    return null;
+}
   const name_initial= user.name.trim().charAt(0).toUpperCase();
 
   const handleLogOut = async () => {
@@ -32,6 +36,7 @@ function Navbar() {
 
 
   return (
+    
     <div className='nav-bg navbar'>
        <Link to="/"  className='horizontal_logo_nav'>
          <img src={horizontal_logo} alt='Design Master'/>
@@ -64,6 +69,7 @@ function Navbar() {
 
        
     </div>
+    
   )
 }
 
