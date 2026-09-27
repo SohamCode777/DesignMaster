@@ -6,6 +6,7 @@ import { useState } from 'react';
 import design_master_bot_1 from "../assets/design_master_bot_1.svg";
 import { projectTypeLabels,domainLabels, difficultyLabels } from '../assets/labels.js';
 import { toast } from "react-toastify";
+import { useNavigate } from 'react-router-dom';
 
 
 function Generator() {
@@ -13,6 +14,9 @@ function Generator() {
   const [topic, setTopic] = useState(null);
   const [topicLoading, setTopicLoading] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [savedTopicId, setSavedTopicId] = useState(null);
+  const navigate = useNavigate();
+ 
 
 
 //   const [topic, setTopic] = useState({
@@ -89,27 +93,75 @@ function Generator() {
 
 
 const handleSave = async () => {
-    try {
-        const response = await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/api/topic/save`,
-            { topic },
-            { withCredentials: true }
-        );
+  try {
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/topic/save`,
+      { topic },
+      { withCredentials: true }
+    );
 
-        console.log(response.data);
+    console.log(response.data);
 
-        setIsSaved(true);
-        toast.success("Topic saved successfully");
+    const topicId = response.data.topicId;
 
-    } catch (error) {
-        console.log(error.response?.data);
+    setSavedTopicId(topicId);
+    setIsSaved(true);
+    toast.success("Topic saved successfully");
 
-        toast.error(
-            error.response?.data?.message || "Failed to save topic"
-        );
-    }
+    return topicId;
+
+  } catch (error) {
+    console.log(error.response?.data);
+    toast.error(
+      error.response?.data?.message || "Failed to save topic"
+    );
+    return null;
+  }
 };
 
+
+const handleSimulate = async () => {
+  try {
+    let topicId = savedTopicId;
+
+    if (!isSaved) {
+      topicId = await handleSave();
+
+      if (!topicId) {
+        return;
+      }
+    }
+
+    const response = await axios.post(
+      `${import.meta.env.VITE_BACKEND_URL}/api/experience/create-conversation`,
+      {
+        topicId,
+        title: topic.title,
+        projectType: topic.projectType,
+        domain: topic.domain,
+        client: topic.client,
+        challenge: topic.challenge,
+        deliverables: topic.deliverables,
+        difficulty: topic.difficulty
+      },
+      { withCredentials: true }
+    );
+
+    if (response.data.alreadySimulated) {
+      toast.warning("Topic already simulated");
+      return;
+    }
+
+    toast.success("Topic simulation started");
+    navigate(`/experience/${response.data.conversationId}`);
+
+  } catch (error) {
+    console.log(error.response?.data);
+    toast.error(
+      error.response?.data?.message || "Failed to start simulation"
+    );
+  }
+};
 
   return (
     <div className='body-container'>
@@ -244,7 +296,7 @@ const handleSave = async () => {
                           {isSaved ? "Saved" : "Save"}
                       </button>
 
-                      <button className='small primary-button simulate-size' type="submit">Simulate</button>
+                      <button className='small primary-button simulate-size' type="button" onClick={handleSimulate}>Simulate</button>
                     </div>
                     
                   </div>

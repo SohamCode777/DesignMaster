@@ -9,6 +9,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    z-index: 100;
 }
 
 .horizontal_logo_nav{
@@ -63,6 +64,7 @@
     right: 0;
     top: 100%;
     padding-top: 4px;
+    z-index: 100;
 }
 
 .dropdown-content {

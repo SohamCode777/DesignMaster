@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import "./Topic.css";
 import { projectTypeLabels, domainLabels, difficultyLabels } from '../assets/labels';
+import { toast } from 'react-toastify';
 
 function Topic() {
 
@@ -42,6 +43,47 @@ function Topic() {
 
     }, [topicId]);
 
+
+    const handleSimulate = async () => {
+    try {
+
+        const response = await axios.post(
+            `${import.meta.env.VITE_BACKEND_URL}/api/experience/create-conversation`,
+            {
+                topicId: topic.id,
+                title: topic.title,
+                projectType: topic.projectType,
+                domain: topic.domain,
+                client: topic.client,
+                challenge: topic.challenge,
+                deliverables: topic.deliverables,
+                difficulty: topic.difficulty
+            },
+            {
+                withCredentials: true
+            }
+        );
+
+        if (response.data.alreadySimulated) {
+            toast.warning("Topic already simulated");
+            return;
+        }
+
+        toast.success("Topic simulation started");
+        navigate(`/experience/${response.data.conversationId}`);
+
+    } catch (error) {
+
+        console.log(
+            "CREATE EXPERIENCE CONVERSATION ERROR:",
+            error.response?.data
+        );
+
+        toast.error(
+            error.response?.data?.message || "Failed to start simulation"
+        );
+    }
+};
 
     if (loading) {
         return (
@@ -154,7 +196,7 @@ function Topic() {
                 </div>
 
 
-                <div className='button-section'>
+                <div className='saved-topic-button-section'>
 
                     <button
                         className='secondary-button'
@@ -167,6 +209,7 @@ function Topic() {
                     <button
                         className='primary-button'
                         type="button"
+                        onClick={handleSimulate}
                     >
                         Simulate
                     </button>

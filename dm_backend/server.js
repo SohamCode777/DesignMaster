@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import authRoutes from './routes/authRoutes.js';
 import pool from "./config/db.js";
 import topicRoutes from './routes/topicRoutes.js';
+import experienceRoutes from './routes/experienceRoutes.js';
 
 
 
@@ -28,6 +29,7 @@ app.use(cookieParser()); //allows express to use req.cookies(), res.cookie(), re
 //adding routes
 app.use('/api/auth',authRoutes)
 app.use('/api/topic', topicRoutes);
+app.use('/api/experience',experienceRoutes);
 
 app.get("/", (req,res)=>{
     res.send("Api working");

@@ -1,0 +1,2 @@
+ALTER TABLE experience_conversations
+ADD COLUMN last_opened_at TIMESTAMP;
