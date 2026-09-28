@@ -1,0 +1,2 @@
+ALTER TABLE experience_conversations
+ADD COLUMN client_persona JSONB;

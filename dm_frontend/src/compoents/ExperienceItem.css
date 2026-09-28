@@ -36,6 +36,37 @@
     border-top-right-radius: 8px;
 }
 
+.experience-item-closed-overlay {
+    position: absolute;
+    inset: 0;
+
+    background-color: rgba(80, 80, 80, 0.45);
+
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+
+    z-index: 2;
+}
+
+.experience-item-closed-pill {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+
+    padding: 4px 10px;
+
+    background-color: #AE2822;
+    color: white;
+    font-family: "Lato", sans-serif;
+
+    border-radius: 999px;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+
+    z-index: 3;
+}
+
 
 /* Three-dot menu */
 
@@ -43,6 +74,7 @@
     position: absolute;
     top: 4px;
     right: 4px;
+    z-index: 5;
 }
 
 .experience-item-menu-button {

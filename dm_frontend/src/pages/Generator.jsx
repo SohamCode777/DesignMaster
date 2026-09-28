@@ -147,16 +147,13 @@ const handleSimulate = async () => {
       { withCredentials: true }
     );
 
-    if (response.data.alreadySimulated) {
-      toast.warning("Topic already simulated");
-      return;
-    }
-
     toast.success("Topic simulation started");
-    navigate(`/experience/${response.data.conversationId}`);
+
+    navigate(`/experience/${response.data.conversation.id}`);
 
   } catch (error) {
     console.log(error.response?.data);
+
     toast.error(
       error.response?.data?.message || "Failed to start simulation"
     );

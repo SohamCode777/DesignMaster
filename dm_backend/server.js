@@ -6,6 +6,7 @@ import authRoutes from './routes/authRoutes.js';
 import pool from "./config/db.js";
 import topicRoutes from './routes/topicRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
+import path from "path";
 
 
 
@@ -25,6 +26,10 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser()); //allows express to use req.cookies(), res.cookie(), res.clearCookie()
+app.use(
+    "/uploads",
+    express.static(path.resolve("uploads"))
+);
 
 //adding routes
 app.use('/api/auth',authRoutes)

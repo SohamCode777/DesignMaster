@@ -9,97 +9,124 @@ function ExperienceItem({ conversation, onDeleted, onClosed  }) {
 
     const navigate = useNavigate();
 
-const handleConversationClick = () => {
-    navigate(`/experience/${conversation.id}`);
-};
+    const handleConversationClick = () => {
+        navigate(`/experience/${conversation.id}`);
+    };
 
 
-const handleDelete = async (e) => {
-    e.stopPropagation();
+    const handleDelete = async (e) => {
+        e.stopPropagation();
 
-    try {
+        try {
 
-        await axios.delete(
-            `${import.meta.env.VITE_BACKEND_URL}/api/experience/delete/${conversation.id}`,
-            {
-                withCredentials: true
-            }
-        );
-
-
-        onDeleted(conversation.id);
-
-        console.log("Conversation deleted successfully");
-
-    } catch (error) {
-
-        console.log(
-            "DELETE EXPERIENCE CONVERSATION ERROR:",
-            error.response?.data
-        );
-
-    }
-};
+            await axios.delete(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/delete/${conversation.id}`,
+                {
+                    withCredentials: true
+                }
+            );
 
 
-const handleClose = async (e) => {
-    e.stopPropagation();
+            onDeleted(conversation.id);
 
-    try {
+            console.log("Conversation deleted successfully");
 
-        await axios.patch(
-            `${import.meta.env.VITE_BACKEND_URL}/api/experience/close/${conversation.id}`,
-            {},
-            {
-                withCredentials: true
-            }
-        );
+        } catch (error) {
 
-        onClosed(conversation.id);
+            console.log(
+                "DELETE EXPERIENCE CONVERSATION ERROR:",
+                error.response?.data
+            );
 
-        console.log("Conversation closed successfully");
+        }
+    };
 
-    } catch (error) {
 
-        console.log(
-            "CLOSE EXPERIENCE CONVERSATION ERROR:",
-            error.response?.data
-        );
+    const handleClose = async (e) => {
+        e.stopPropagation();
 
-    }
-};
+        try {
 
+            await axios.patch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/close/${conversation.id}`,
+                {},
+                {
+                    withCredentials: true
+                }
+            );
+
+            onClosed(conversation.id);
+
+            console.log("Conversation closed successfully");
+
+        } catch (error) {
+
+            console.log(
+                "CLOSE EXPERIENCE CONVERSATION ERROR:",
+                error.response?.data
+            );
+
+        }
+    };
 
 
     return (
         <div className="experience-item-container" onClick={handleConversationClick}>
 
             <div className="experience-item-thumbnail">
+
                 <img
                     src={thumbnail_image}
                     alt=""
                 />
 
+                {conversation.status === "closed" && (
+                    <>
+                        <div className="experience-item-closed-overlay"></div>
+
+                        <div className="experience-item-closed-pill">
+                            Closed
+                        </div>
+                    </>
+                )}
+
                 <div className="experience-item-menu">
-                        <button className="experience-item-menu-button" onClick={(e) => e.stopPropagation()}>
-                            ⋮
-                        </button>
 
-                        <div className="experience-item-dropdown">
-                            <p className="p experience-item-dropdown-option" onClick={handleDelete}>
-                                Delete
-                            </p>
+                    <button
+                        className="experience-item-menu-button"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        ⋮
+                    </button>
 
-                            <p className="p experience-item-dropdown-option" onClick={handleClose}>
+                    <div className="experience-item-dropdown">
+
+                        <p
+                            className="p experience-item-dropdown-option"
+                            onClick={handleDelete}
+                        >
+                            Delete
+                        </p>
+
+                        {conversation.status === "active" && (
+                            <p
+                                className="p experience-item-dropdown-option"
+                                onClick={handleClose}
+                            >
                                 End Conversation
                             </p>
-                        </div>
+                        )}
+
                     </div>
+
+                </div>
+
             </div>
 
             <div className="experience-item-details">
 
                 <div className="micro-topic-pills">
+
                     <div className="micro-topic-pill small micro-topic-pill-projectType">
                         {projectTypeLabels[conversation.projectType.toLowerCase()]}
                     </div>
@@ -108,15 +135,18 @@ const handleClose = async (e) => {
                         {domainLabels[conversation.domain.toLowerCase()]}
                     </div>
 
-                    <div className={`micro-topic-pill small ${
-                        conversation.difficulty.toLowerCase() === "beginner"
-                            ? "micro-topic-pill-difficulty-beginner"
-                            : conversation.difficulty.toLowerCase() === "intermediate"
-                            ? "micro-topic-pill-difficulty-intermediate"
-                            : "micro-topic-pill-difficulty-advanced"
-                    }`}>
+                    <div
+                        className={`micro-topic-pill small ${
+                            conversation.difficulty.toLowerCase() === "beginner"
+                                ? "micro-topic-pill-difficulty-beginner"
+                                : conversation.difficulty.toLowerCase() === "intermediate"
+                                ? "micro-topic-pill-difficulty-intermediate"
+                                : "micro-topic-pill-difficulty-advanced"
+                        }`}
+                    >
                         {difficultyLabels[conversation.difficulty.toLowerCase()]}
                     </div>
+
                 </div>
 
                 <p className="h6 experience-item-title">

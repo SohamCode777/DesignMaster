@@ -9,385 +9,738 @@ import ai_icon from "../assets/ai_icon.svg";
 import drop_down_arrow_dark from "../assets/drop_down_arrow_dark.svg";
 
 function ExperienceChat() {
-  const navigate = useNavigate();
-  const { conversationId } = useParams();
+    const navigate = useNavigate();
+    const { conversationId } = useParams();
 
-  const [message, setMessage] = useState("");
-  const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
-  const [showScrollButton, setShowScrollButton] = useState(false);
+    const [conversation, setConversation] = useState(null);
+    const [messages, setMessages] = useState([]);
 
-  const messagesEndRef = useRef(null);
+    const [message, setMessage] = useState("");
+    const [selectedFiles, setSelectedFiles] = useState([]);
 
-  const fakeConversation = {
-    id: 1,
-    title: "Reimagining the Complete Digital Banking Experience",
-    projectType: "ui-ux-design",
-    domain: "finance",
-    difficulty: "intermediate",
-    client: "Finly",
-    challenge: "Create a simpler and more engaging personal finance experience.",
-    deliverables: [
-      "User Flow",
-      "Low-Fidelity Wireframes",
-      "High-Fidelity Mobile Screens"
-    ],
-    status: "active"
-  };
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSending, setIsSending] = useState(false);
+    const [error, setError] = useState("");
 
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
+    const [isHeaderCollapsed, setIsHeaderCollapsed] = useState(false);
+    const [showScrollButton, setShowScrollButton] = useState(false);
 
-    e.target.style.height = "auto";
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
-  };
+    const messagesEndRef = useRef(null);
+    const textareaRef = useRef(null);
+    const fileInputRef = useRef(null);
 
-  const updateLastOpened = async () => {
-    try {
-      await axios.patch(
-        `${import.meta.env.VITE_BACKEND_URL}/api/experience/last-opened/${conversationId}`,
-        {},
-        { withCredentials: true }
-      );
-    } catch (error) {
-      console.log(
-        "UPDATE LAST OPENED ERROR:",
-        error.response?.data
-      );
+    const getExperienceConversation = async () => {
+        try {
+            setIsLoading(true);
+            setError("");
+
+            const response = await axios.get(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/${conversationId}`,
+                { withCredentials: true }
+            );
+
+            setConversation(response.data.conversation);
+            setMessages(response.data.messages);
+
+        } catch (error) {
+            console.log(
+                "GET EXPERIENCE CONVERSATION ERROR:",
+                error.response?.data
+            );
+
+            setError(
+                error.response?.data?.message ||
+                "Failed to load conversation"
+            );
+
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const updateLastOpened = async () => {
+        try {
+            await axios.patch(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/last-opened/${conversationId}`,
+                {},
+                { withCredentials: true }
+            );
+
+        } catch (error) {
+            console.log(
+                "UPDATE LAST OPENED ERROR:",
+                error.response?.data
+            );
+        }
+    };
+
+    const handleFileSelect = (e) => {
+        const newFiles = Array.from(e.target.files || []);
+
+        if (newFiles.length === 0) {
+            return;
+        }
+
+        setError("");
+
+        setSelectedFiles((previousFiles) => {
+            const combinedFiles = [
+                ...previousFiles,
+                ...newFiles
+            ];
+
+            const uniqueFiles = combinedFiles.filter(
+                (file, index, array) =>
+                    index ===
+                    array.findIndex(
+                        (item) =>
+                            item.name === file.name &&
+                            item.size === file.size &&
+                            item.lastModified === file.lastModified
+                    )
+            );
+
+            return uniqueFiles.slice(0, 5);
+        });
+
+        e.target.value = "";
+    };
+
+    const removeSelectedFile = (indexToRemove) => {
+        setSelectedFiles((previousFiles) =>
+            previousFiles.filter(
+                (_, index) => index !== indexToRemove
+            )
+        );
+    };
+
+    const sendMessage = async () => {
+        if (
+            (!message.trim() && selectedFiles.length === 0) ||
+            isSending ||
+            !conversation
+        ) {
+            return;
+        }
+
+        if (conversation.status !== "active") {
+            return;
+        }
+
+        const currentMessage = message.trim();
+        const currentFiles = [...selectedFiles];
+
+        setMessage("");
+        setSelectedFiles([]);
+        setError("");
+        setIsSending(true);
+
+        if (textareaRef.current) {
+            textareaRef.current.style.height = "auto";
+        }
+
+        const temporaryMessage = {
+            id: `temporary-${Date.now()}`,
+            sender: "user",
+            message: currentMessage || null,
+            files: currentFiles.map((file, index) => ({
+                id: `temporary-file-${Date.now()}-${index}`,
+                file_name: file.name,
+                file_path: null,
+                resource_type: file.type
+            }))
+        };
+
+        setMessages((previousMessages) => [
+            ...previousMessages,
+            temporaryMessage
+        ]);
+
+        try {
+            const formData = new FormData();
+
+            if (currentMessage) {
+                formData.append("message", currentMessage);
+            }
+
+            currentFiles.forEach((file) => {
+                formData.append("files", file);
+            });
+
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/${conversationId}/message`,
+                formData,
+                { withCredentials: true }
+            );
+
+            setMessages((previousMessages) => {
+                const messagesWithoutTemporary =
+                    previousMessages.filter(
+                        (item) =>
+                            item.id !== temporaryMessage.id
+                    );
+
+                return [
+                    ...messagesWithoutTemporary,
+                    response.data.userMessage,
+                    response.data.aiMessage
+                ];
+            });
+
+        } catch (error) {
+            console.log(
+                "SEND EXPERIENCE MESSAGE ERROR:",
+                error.response?.data
+            );
+
+            setMessages((previousMessages) =>
+                previousMessages.filter(
+                    (item) =>
+                        item.id !== temporaryMessage.id
+                )
+            );
+
+            setMessage(currentMessage);
+            setSelectedFiles(currentFiles);
+
+            setError(
+                error.response?.data?.message ||
+                "Failed to send message"
+            );
+
+        } finally {
+            setIsSending(false);
+        }
+    };
+
+    const handleMessageChange = (e) => {
+        setMessage(e.target.value);
+
+        e.target.style.height = "auto";
+        e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+    };
+
+    const handleMessageKeyDown = (e) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    };
+
+    const handleScroll = () => {
+        const distanceFromBottom =
+            document.documentElement.scrollHeight -
+            (window.scrollY + window.innerHeight);
+
+        setShowScrollButton(distanceFromBottom > 20);
+    };
+
+    const scrollToLatestMessage = () => {
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth"
+        });
+    };
+
+    const handleEndConversation = async () => {
+    if (!conversation || conversation.status !== "active") {
+        return;
     }
-  };
 
-  const handleScroll = () => {
-  const distanceFromBottom =
-    document.documentElement.scrollHeight -
-    (window.scrollY + window.innerHeight);
+    try {
+        const response = await axios.patch(
+            `${import.meta.env.VITE_BACKEND_URL}/api/experience/close/${conversationId}`,
+            {},
+            { withCredentials: true }
+        );
 
-  setShowScrollButton(distanceFromBottom > 20);
+        setConversation(response.data.conversation);
+
+    } catch (error) {
+        console.log(
+            "CLOSE EXPERIENCE CONVERSATION ERROR:",
+            error.response?.data
+        );
+
+        setError(
+            error.response?.data?.message ||
+            "Failed to end conversation"
+        );
+    }
 };
 
-  const scrollToLatestMessage = () => {
-    messagesEndRef.current?.scrollIntoView({
-      behavior: "smooth"
-    });
-  };
+    const getFileUrl = (filePath) => {
+        if (!filePath) {
+            return null;
+        }
 
-  useEffect(() => {
-    updateLastOpened();
-  }, [conversationId]);
+        const normalizedPath = filePath.replace(/\\/g, "/");
+        const uploadsIndex = normalizedPath.indexOf("uploads/");
 
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+        if (uploadsIndex === -1) {
+            return null;
+        }
 
-    handleScroll();
+        const relativePath = normalizedPath.substring(
+            uploadsIndex
+        );
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
+        return `${import.meta.env.VITE_BACKEND_URL}/${relativePath}`;
     };
-  }, []);
 
-  return (
-    <div className="experience-chat-page">
+    const isImageFile = (resourceType) => {
+        return resourceType?.startsWith("image/");
+    };
 
-      <div
-        className={`experience-chat-header ${
-          isHeaderCollapsed
-            ? "experience-chat-header-collapsed"
-            : ""
-        }`}
-      >
+    useEffect(() => {
+        getExperienceConversation();
+        updateLastOpened();
+    }, [conversationId]);
 
-        {!isHeaderCollapsed && (
-          <>
-            <div className="experience-topic-section">
+    useEffect(() => {
+        window.addEventListener("scroll", handleScroll);
 
-              <h5 className="h6 experience-topic-title">
-                {fakeConversation.title}
-              </h5>
+        handleScroll();
 
-              <div className="experience-topic-pills">
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
-                <div className="experience-topic-pill small experience-topic-pill-projectType">
-                  {
-                    projectTypeLabels[
-                      fakeConversation.projectType.toLowerCase()
-                    ]
-                  }
+    useEffect(() => {
+        if (!isLoading && messages.length > 0) {
+            messagesEndRef.current?.scrollIntoView({
+                behavior: "auto"
+            });
+        }
+    }, [isLoading]);
+
+    useEffect(() => {
+        if (messages.length > 0) {
+            messagesEndRef.current?.scrollIntoView({
+                behavior: "smooth"
+            });
+        }
+    }, [messages.length]);
+
+    if (isLoading) {
+        return (
+            <div className="experience-chat-page">
+                <div className="experience-chat-loading">
+                    <p className="p">Loading conversation...</p>
                 </div>
+            </div>
+        );
+    }
 
-                <div className="experience-topic-pill small experience-topic-pill-domain">
-                  {
-                    domainLabels[
-                      fakeConversation.domain.toLowerCase()
-                    ]
-                  }
+    if (error && !conversation) {
+        return (
+            <div className="experience-chat-page">
+                <div className="experience-chat-error">
+                    <p className="p">{error}</p>
+
+                    <button
+                        className="secondary-button"
+                        type="button"
+                        onClick={() =>
+                            navigate("/experience-centre")
+                        }
+                    >
+                        Back to Experience Centre
+                    </button>
                 </div>
+            </div>
+        );
+    }
 
-                <div
-                  className={`experience-topic-pill small ${
-                    fakeConversation.difficulty.toLowerCase() === "beginner"
-                      ? "experience-topic-pill-difficulty-beginner"
-                      : fakeConversation.difficulty.toLowerCase() === "intermediate"
-                      ? "experience-topic-pill-difficulty-intermediate"
-                      : "experience-topic-pill-difficulty-advanced"
-                  }`}
+    if (!conversation) {
+        return null;
+    }
+
+    const isConversationActive =
+        conversation.status === "active";
+
+    const canSend =
+        isConversationActive &&
+        !isSending &&
+        (
+            message.trim().length > 0 ||
+            selectedFiles.length > 0
+        );
+
+    return (
+        <div className="experience-chat-page">
+
+            <div
+                className={`experience-chat-header ${
+                    isHeaderCollapsed
+                        ? "experience-chat-header-collapsed"
+                        : ""
+                }`}
+            >
+
+                {!isHeaderCollapsed && (
+                    <>
+                        <div className="experience-topic-section">
+
+                            <h5 className="h6 experience-topic-title">
+                                {conversation.title}
+                            </h5>
+
+                            <div className="experience-topic-pills">
+
+                                <div className="experience-topic-pill small experience-topic-pill-projectType">
+                                    {
+                                        projectTypeLabels[
+                                            conversation.project_type?.toLowerCase()
+                                        ]
+                                    }
+                                </div>
+
+                                <div className="experience-topic-pill small experience-topic-pill-domain">
+                                    {
+                                        domainLabels[
+                                            conversation.domain?.toLowerCase()
+                                        ]
+                                    }
+                                </div>
+
+                                <div
+                                    className={`experience-topic-pill small ${
+                                        conversation.difficulty?.toLowerCase() === "beginner"
+                                            ? "experience-topic-pill-difficulty-beginner"
+                                            : conversation.difficulty?.toLowerCase() === "intermediate"
+                                            ? "experience-topic-pill-difficulty-intermediate"
+                                            : "experience-topic-pill-difficulty-advanced"
+                                    }`}
+                                >
+                                    {
+                                        difficultyLabels[
+                                            conversation.difficulty?.toLowerCase()
+                                        ]
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <div className="experience-button-section">
+
+                            <button
+                                className="secondary-button"
+                                type="button"
+                                onClick={() => navigate(-1)}
+                            >
+                                Back
+                            </button>
+
+                            <button
+                                className="primary-button"
+                                type="button"
+                                onClick={handleEndConversation}
+                                disabled={!isConversationActive}
+                            >
+                                {
+                                    isConversationActive
+                                        ? "End Conversation"
+                                        : "Conversation Ended"
+                                }
+                            </button>
+
+                        </div>
+                    </>
+                )}
+
+                <button
+                    type="button"
+                    className={`experience-header-toggle ${
+                        isHeaderCollapsed
+                            ? "experience-header-toggle-collapsed"
+                            : ""
+                    }`}
+                    onClick={() =>
+                        setIsHeaderCollapsed(
+                            (previous) => !previous
+                        )
+                    }
+                    aria-label={
+                        isHeaderCollapsed
+                            ? "Show conversation header"
+                            : "Hide conversation header"
+                    }
                 >
-                  {
-                    difficultyLabels[
-                      fakeConversation.difficulty.toLowerCase()
-                    ]
-                  }
+                    <img
+                        src={drop_down_arrow_dark}
+                        alt=""
+                        className={
+                            isHeaderCollapsed
+                                ? "experience-header-arrow"
+                                : "experience-header-arrow experience-header-arrow-up"
+                        }
+                    />
+                </button>
+
+            </div>
+
+
+            <div className="chat-area">
+
+                <div className="chat-messages">
+
+                    {messages.map((item) => (
+
+                        item.sender === "ai" ? (
+
+                            <div
+                                className="ai-message"
+                                key={item.id}
+                            >
+                                <img
+                                    src={ai_icon}
+                                    alt="AI"
+                                    className="ai-message-icon"
+                                />
+
+                                <p className="p">
+                                    {item.message}
+                                </p>
+                            </div>
+
+                        ) : (
+
+                            <div
+                                className="user-message"
+                                key={item.id}
+                            >
+
+                                {item.files?.length > 0 && (
+                                    <div className="user-message-files">
+
+                                        {item.files.map((file) => {
+                                            const fileUrl =
+                                                getFileUrl(
+                                                    file.file_path
+                                                );
+
+                                            return (
+                                                <div
+                                                    className="chat-file"
+                                                    key={file.id}
+                                                >
+
+                                                    {fileUrl &&
+                                                    isImageFile(
+                                                        file.resource_type
+                                                    ) ? (
+                                                        <a
+                                                            href={fileUrl}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="chat-image-link"
+                                                        >
+                                                            <img
+                                                                src={fileUrl}
+                                                                alt={file.file_name}
+                                                                className="chat-image-preview"
+                                                            />
+                                                        </a>
+                                                    ) : (
+                                                        <a
+                                                            href={
+                                                                fileUrl ||
+                                                                undefined
+                                                            }
+                                                            target={
+                                                                fileUrl
+                                                                    ? "_blank"
+                                                                    : undefined
+                                                            }
+                                                            rel={
+                                                                fileUrl
+                                                                    ? "noreferrer"
+                                                                    : undefined
+                                                            }
+                                                            className="chat-file-name"
+                                                            onClick={(e) => {
+                                                                if (!fileUrl) {
+                                                                    e.preventDefault();
+                                                                }
+                                                            }}
+                                                        >
+                                                            {file.file_name}
+                                                        </a>
+                                                    )}
+
+                                                </div>
+                                            );
+                                        })}
+
+                                    </div>
+                                )}
+
+                                {item.message && (
+                                    <p className="p">
+                                        {item.message}
+                                    </p>
+                                )}
+
+                            </div>
+                        )
+
+                    ))}
+
+                    {isSending && (
+                        <div className="ai-message">
+
+                            <img
+                                src={ai_icon}
+                                alt="AI"
+                                className="ai-message-icon"
+                            />
+
+                            <p className="p">
+                                Thinking...
+                            </p>
+
+                        </div>
+                    )}
+
+                    <div ref={messagesEndRef}></div>
+
                 </div>
 
-              </div>
+
+                {error && (
+                    <div className="experience-chat-message-error">
+                        <p className="small">
+                            {error}
+                        </p>
+                    </div>
+                )}
+
+
+               {isConversationActive ? (
+                        <div className="chat-input-container">
+
+                            <div className="chat-input">
+
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    multiple
+                                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx"
+                                    className="chat-file-input"
+                                    onChange={handleFileSelect}
+                                />
+
+                                <button
+                                    type="button"
+                                    className="chat-upload-button"
+                                    onClick={() =>
+                                        fileInputRef.current?.click()
+                                    }
+                                    disabled={
+                                        isSending ||
+                                        selectedFiles.length >= 5
+                                    }
+                                    title={
+                                        selectedFiles.length >= 5
+                                            ? "Maximum 5 files"
+                                            : "Upload files"
+                                    }
+                                >
+                                    <img
+                                        src={upload_icon}
+                                        alt="Upload"
+                                    />
+                                </button>
+
+                                <div className="chat-text-section">
+
+                                    {selectedFiles.length > 0 && (
+                                        <div className="selected-files">
+
+                                            {selectedFiles.map(
+                                                (file, index) => (
+                                                    <div
+                                                        className="selected-file"
+                                                        key={`${file.name}-${file.lastModified}-${index}`}
+                                                    >
+                                                        <span className="small">
+                                                            {file.name}
+                                                        </span>
+
+                                                        <button
+                                                            type="button"
+                                                            className="remove-selected-file"
+                                                            onClick={() =>
+                                                                removeSelectedFile(index)
+                                                            }
+                                                            disabled={isSending}
+                                                            aria-label={`Remove ${file.name}`}
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                )
+                                            )}
+
+                                        </div>
+                                    )}
+
+                                    <textarea
+                                        ref={textareaRef}
+                                        className="small chat-text-input"
+                                        placeholder="Type and upload here..."
+                                        rows="1"
+                                        value={message}
+                                        onChange={handleMessageChange}
+                                        onKeyDown={handleMessageKeyDown}
+                                        disabled={isSending}
+                                    />
+
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="chat-submit-button"
+                                    onClick={sendMessage}
+                                    disabled={!canSend}
+                                >
+                                    <img
+                                        src={submit_icon}
+                                        alt="Submit"
+                                    />
+                                </button>
+
+                            </div>
+
+                        </div>
+                    ) : (
+                        <div className="chat-input-container">
+                            <div className="chat-ended-message">
+                                <p className="p">
+                                    This conversation has been ended by user.
+                                </p>
+                            </div>
+                        </div>
+                    )}
 
             </div>
 
-            <div className="experience-button-section">
 
-              <button
-                className="secondary-button"
-                type="button"
-                onClick={() => navigate(-1)}
-              >
-                Back
-              </button>
-
-              <button
-                className="primary-button"
-                type="button"
-              >
-                End Conversation
-              </button>
-
-            </div>
-          </>
-        )}
-
-        <button
-          type="button"
-          className={`experience-header-toggle ${
-            isHeaderCollapsed
-              ? "experience-header-toggle-collapsed"
-              : ""
-          }`}
-          onClick={() =>
-            setIsHeaderCollapsed((previous) => !previous)
-          }
-          aria-label={
-            isHeaderCollapsed
-              ? "Show conversation header"
-              : "Hide conversation header"
-          }
-        >
-          <img
-            src={drop_down_arrow_dark}
-            alt=""
-            className={
-              isHeaderCollapsed
-                ? "experience-header-arrow"
-                : "experience-header-arrow experience-header-arrow-up"
-            }
-          />
-        </button>
-
-      </div>
-
-      <div className="chat-area">
-
-        <div className="chat-messages">
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                Hello! I'm your client for this project. Let's begin by discussing
-                the direction you'd like to take for the personal finance experience.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                I think the experience should feel simple and approachable while
-                still giving users enough information to understand their finances.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                That sounds like a good direction. What do you think is the biggest
-                problem users currently face when managing their personal finances?
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                I think there is too much information presented at once. Users can
-                see their balance, transactions, investments, bills, and spending
-                categories, but it can become difficult to understand what actually
-                matters to them.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                I agree that reducing cognitive load could be important. Let's focus
-                on the user flow first. How would you imagine a user moving through
-                the experience from opening the app to understanding their finances?
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                The user should probably start with a quick overview of their
-                financial health. From there, they could choose to explore spending,
-                upcoming bills, savings, or other areas depending on what they need.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <div className="user-message-files">
-                <button type="button" className="chat-file-name">
-                  homepage-wireframe.png
+            {showScrollButton && (
+                <button
+                    type="button"
+                    className="chat-scroll-bottom-button"
+                    onClick={scrollToLatestMessage}
+                    aria-label="Go to latest message"
+                >
+                    ↓
                 </button>
-                <button type="button" className="chat-file-name">
-                  finance-flow.pdf
-                </button>
-              </div>
-
-              <p className="p">
-                I have attached the initial wireframes and the user flow for you
-                to review.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                Thanks. I have reviewed the direction and the attached materials.
-                The overall flow feels clear, but I think we should simplify the
-                first screen so users immediately understand their financial status.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                That makes sense. I was considering showing the total balance first,
-                followed by a short summary of spending and upcoming payments.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                That could work well. We should also consider whether the user needs
-                to interact with the summary immediately or simply understand it
-                before deciding where to go next.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                I would prefer the first screen to be mostly informational. The
-                important actions could come after the user has understood their
-                current financial situation.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                Good. Let's keep that principle for the user flow. For the next
-                iteration, try restructuring the flow around overview, insight,
-                and action rather than presenting every feature immediately.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                I have updated the flow based on that structure. I also moved the
-                detailed spending information one level deeper so it doesn't compete
-                with the main overview.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                That is closer to the direction I had in mind. Let's lock the user
-                flow for now and move on to the low-fidelity wireframes.
-              </p>
-            </div>
-
-            <div className="user-message">
-              <p className="p">
-                Sounds good. I'll start working on the low-fidelity wireframes
-                using the updated flow.
-              </p>
-            </div>
-
-            <div className="ai-message">
-              <img src={ai_icon} alt="AI" className="ai-message-icon" />
-              <p className="p">
-                Great. Once the wireframes are ready, share them here and we'll
-                review the structure and hierarchy together.
-              </p>
-            </div>
-
-            <div ref={messagesEndRef}></div>
-
-          </div>
-
-        <div className="chat-input-container">
-
-          <div className="chat-input">
-
-            <button
-              type="button"
-              className="chat-upload-button"
-            >
-              <img
-                src={upload_icon}
-                alt="Upload"
-              />
-            </button>
-
-            <textarea
-              className="small chat-text-input"
-              placeholder="Type and upload here..."
-              rows="1"
-              value={message}
-              onChange={handleMessageChange}
-            />
-
-            <button
-              type="button"
-              className="chat-submit-button"
-            >
-              <img
-                src={submit_icon}
-                alt="Submit"
-              />
-            </button>
-
-          </div>
+            )}
 
         </div>
-
-      </div>
-
-      {showScrollButton && (
-        <button
-          type="button"
-          className="chat-scroll-bottom-button"
-          onClick={scrollToLatestMessage}
-          aria-label="Go to latest message"
-        >
-          ↓
-        </button>
-      )}
-
-    </div>
-  );
+    );
 }
 
 export default ExperienceChat;
