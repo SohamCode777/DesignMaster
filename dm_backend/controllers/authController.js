@@ -1,13 +1,14 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import pool from "../config/db.js";
+import generateToken from "../utils/generateToken.js";
 
 
 const registerUser = async (req, res) => {
 
     try {
 
-        const { name, email, password } = req.body;
+        const { name, email, password } = req.body.user;
 
         if (!name || !email || !password) {
             return res.status(400).json({
@@ -35,6 +36,16 @@ const registerUser = async (req, res) => {
             [name, email, hashedPassword]
         );
 
+        const token = generateToken(result.rows[0].id);
+
+         res.cookie("token", token, {
+            httpOnly: true,
+            secure: false,
+            sameSite: "strict",
+            maxAge: 3 * 60 * 60 * 1000
+        });
+
+        
         return res.status(201).json({
             user: result.rows[0],
             message: "User registered successfully."
@@ -55,7 +66,11 @@ const loginUser = async (req, res) => {
 
     try {
 
-        const { email, password } = req.body;
+        const { email, password } = req.body.userLogin;
+
+        console.log(email);
+        console.log(password);
+        
 
         const result = await pool.query(
             "SELECT * FROM users WHERE email = $1",
@@ -81,15 +96,8 @@ const loginUser = async (req, res) => {
             });
         }
 
-        const token = jwt.sign(
-            {
-                userId: user.id
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn: "3h"
-            }
-        );
+        const token = generateToken(user.id);
+
 
         res.cookie("token", token, {
             httpOnly: true,
