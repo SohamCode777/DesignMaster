@@ -153,7 +153,11 @@ const handleConversationClosed = (conversationId) => {
     );
 
     setRecentlyOpened((prev) =>
-        prev.filter((conversation) => conversation.id !== conversationId)
+        prev.map((conversation) =>
+            conversation.id === conversationId
+                ? { ...conversation, status: "closed" }
+                : conversation
+        )
     );
 };
 

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
@@ -45,45 +46,44 @@ function Topic() {
 
 
     const handleSimulate = async () => {
-    try {
 
-        const response = await axios.post(
-            `${import.meta.env.VITE_BACKEND_URL}/api/experience/create-conversation`,
-            {
-                topicId: topic.id,
-                title: topic.title,
-                projectType: topic.projectType,
-                domain: topic.domain,
-                client: topic.client,
-                challenge: topic.challenge,
-                deliverables: topic.deliverables,
-                difficulty: topic.difficulty
-            },
-            {
-                withCredentials: true
-            }
-        );
+        try {
 
-        if (response.data.alreadySimulated) {
-            toast.warning("Topic already simulated");
-            return;
+            const response = await axios.post(
+                `${import.meta.env.VITE_BACKEND_URL}/api/experience/create-conversation`,
+                {
+                    topicId: topic.id,
+                    title: topic.title,
+                    projectType: topic.projectType,
+                    domain: topic.domain,
+                    client: topic.client,
+                    challenge: topic.challenge,
+                    deliverables: topic.deliverables,
+                    difficulty: topic.difficulty
+                },
+                {
+                    withCredentials: true
+                }
+            );
+
+            toast.success("Topic simulation started");
+
+            navigate(`/experience/${response.data.conversation.id}`);
+
+        } catch (error) {
+
+            console.log(
+                "CREATE EXPERIENCE CONVERSATION ERROR:",
+                error.response?.data
+            );
+
+            toast.error(
+                error.response?.data?.message ||
+                "Failed to start simulation"
+            );
         }
+    };
 
-        toast.success("Topic simulation started");
-        navigate(`/experience/${response.data.conversationId}`);
-
-    } catch (error) {
-
-        console.log(
-            "CREATE EXPERIENCE CONVERSATION ERROR:",
-            error.response?.data
-        );
-
-        toast.error(
-            error.response?.data?.message || "Failed to start simulation"
-        );
-    }
-};
 
     if (loading) {
         return (
@@ -100,6 +100,7 @@ function Topic() {
         return (
             <div className='body-container'>
                 <div className='topic-body'>
+
                     <p className='p'>Topic not found.</p>
 
                     <button
@@ -109,6 +110,7 @@ function Topic() {
                     >
                         Back
                     </button>
+
                 </div>
             </div>
         );
@@ -117,6 +119,7 @@ function Topic() {
 
     return (
         <div className='body-container'>
+
             <div className='topic-body'>
 
                 <div className='topic-detail-section'>
@@ -153,6 +156,7 @@ function Topic() {
 
 
                     <div className='topic-page-topic-section'>
+
                         <h6 className='h5 topic-page-topic-section-title'>
                             Client:
                         </h6>
@@ -160,10 +164,12 @@ function Topic() {
                         <p className='p topic-page-topic-section-text'>
                             {topic.client}
                         </p>
+
                     </div>
 
 
                     <div className='topic-page-topic-section'>
+
                         <h6 className='h5 topic-page-topic-section-title'>
                             Challenge:
                         </h6>
@@ -171,10 +177,12 @@ function Topic() {
                         <p className='p topic-page-topic-section-text'>
                             {topic.challenge}
                         </p>
+
                     </div>
 
 
                     <div className='topic-page-topic-section'>
+
                         <h6 className='h5 topic-page-topic-section-title'>
                             Deliverables:
                         </h6>
@@ -191,6 +199,7 @@ function Topic() {
                             ))}
 
                         </ul>
+
                     </div>
 
                 </div>
@@ -217,8 +226,10 @@ function Topic() {
                 </div>
 
             </div>
+
         </div>
     )
 }
 
 export default Topic
+
